@@ -10,6 +10,7 @@ import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.repositorie.UserRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -21,7 +22,6 @@ public class UserServiceImpl implements UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    @Transactional
     @Override
     public User findByUsername(String name) {
         return userRepository.findByUsername(name).get();
@@ -35,18 +35,22 @@ public class UserServiceImpl implements UserService {
         }
         return user;
     }
-
-    @Override
     @Transactional
+    @Override
     public void saveUser(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     @Override
     public User showUser(Long id) {
-        return userRepository.findById(id).get();
+        User user = null;
+        Optional<User> userFromBD = userRepository.findById(id);
+        if (userFromBD.isPresent()) {
+            user = userFromBD.get();
+        }
+        return user;
     }
 
     @Transactional
@@ -55,8 +59,8 @@ public class UserServiceImpl implements UserService {
         userRepository.delete(userRepository.findById(id).get());
     }
 
-    @Override
     @Transactional(readOnly = true)
+    @Override
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }

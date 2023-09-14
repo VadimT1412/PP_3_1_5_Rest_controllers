@@ -186,7 +186,7 @@
                                                                             <select id="editUserRoles"
                                                                                     class="form-select"
                                                                                     name="roles" multiple size="2">
-                                                                                <option th:each="role: ${rolesNew}"
+                                                                                <option th:each="role: ${userRoles}"
                                                                                         th:value="${role.getId()}">
                                                                                     <th:block
                                                                                             th:text="${role.getName()}">
@@ -367,7 +367,7 @@
                                                 <label for="rolesUser" class="font-weight-bold">Role</label>
                                                 <select multiple class="custom-select" size="2" id="rolesUser"
                                                         name="roles">
-                                                    <option th:each="role : ${rolesNew}" th:value="${role.id}">
+                                                    <option th:each="role : ${userRoles}" th:value="${role.id}">
                                                         <th:block th:text="${role.getName()}"></th:block>
                                                     </option>
                                                 </select>

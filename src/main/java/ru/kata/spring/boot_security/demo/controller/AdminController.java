@@ -35,17 +35,16 @@ public class AdminController {
         model.addAttribute("users", userService.getAllUsers());
         model.addAttribute("userRoles", roleService.getRoles());
         model.addAttribute("userNew", new User());
-        model.addAttribute("rolesNew", roleService.getRoles());
         return "admin";
     }
 
     @PostMapping("")
-    public String newUser(@ModelAttribute User user, Model model, BindingResult bindingResult) {
+    public String newUser(@ModelAttribute User user, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return "redirect:/admin";
         }
         try {
-            userService.updateUser(user);
+            userService.saveUser(user);
         } catch (Exception e) {
             return "userNameError";
         }
@@ -53,17 +52,12 @@ public class AdminController {
     }
 
     @PatchMapping("/{id}")
-    public String update(@ModelAttribute User updatedUser, @PathVariable Long id, Model model, BindingResult bindingResult) {
+    public String update(@ModelAttribute User updatedUser, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return "redirect:/admin";
         }
         try {
-        User existingUser = userService.showUser(id);
-        existingUser.setUsername(updatedUser.getUsername());
-        existingUser.setLastName(updatedUser.getLastName());
-        existingUser.setAge(updatedUser.getAge());
-        existingUser.setRoles(updatedUser.getRoles());
-        userService.updateUser(existingUser);
+            userService.updateUser(updatedUser);
         } catch (Exception e) {
             return "userNameError";
         }
