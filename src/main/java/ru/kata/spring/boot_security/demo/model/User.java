@@ -1,13 +1,12 @@
 package ru.kata.spring.boot_security.demo.model;
 
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -16,6 +15,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -35,16 +35,14 @@ public class User implements UserDetails {
     private String username;
     @Column(name = "password")
     private String password;
-    @ManyToMany(cascade = {CascadeType.MERGE})
-    @Fetch(FetchMode.JOIN)
-    @JoinTable(name = "users_roles",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id"))
+    @ManyToMany(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "users_roles",
+            joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id")
+    )
 
     private Collection<Role> roles;
-
-    public User() {
-    }
 
     public User(String firstName, String lastName, int age, String username,
                 String password, Set<Role> roles) {
@@ -54,6 +52,10 @@ public class User implements UserDetails {
         this.username = username;
         this.password = password;
         this.roles = roles;
+    }
+
+    public User() {
+
     }
 
     public Collection<Role> getRoles() {
@@ -114,7 +116,7 @@ public class User implements UserDetails {
         return password;
     }
 
-    @Override
+//    @Override
     public String getUsername() {
         return username;
     }
@@ -155,8 +157,20 @@ public class User implements UserDetails {
     public String roleToString() {
         StringBuilder sb = new StringBuilder();
         for (Role role : roles) {
-            sb.append(role.getNameRole()).append(" ");
+            sb.append(role.getName()).append(" ");
         }
         return sb.toString();
+    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return username.equals(user.username) && lastName.equals(user.lastName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(username, lastName);
     }
 }

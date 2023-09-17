@@ -3,13 +3,7 @@ package ru.kata.spring.boot_security.demo.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.service.RoleService;
 import ru.kata.spring.boot_security.demo.service.UserService;
@@ -17,7 +11,6 @@ import ru.kata.spring.boot_security.demo.service.UserService;
 import java.security.Principal;
 
 @Controller
-@RequestMapping("/admin")
 public class AdminController {
     private final UserService userService;
     private final RoleService roleService;
@@ -28,46 +21,20 @@ public class AdminController {
         this.roleService = roleService;
     }
 
-    @GetMapping()
+    @GetMapping("/admin")
     public String printUsersList(Principal principal, Model model) {
         User admin = userService.findByUsername(principal.getName());
         model.addAttribute("admin", admin);
         model.addAttribute("users", userService.getAllUsers());
-        model.addAttribute("userRoles", roleService.getRoles());
-        model.addAttribute("userNew", new User());
+        model.addAttribute("roles", roleService.getRoles());
+        model.addAttribute("user", new User());
         return "admin";
     }
-
-    @PostMapping("")
-    public String newUser(@ModelAttribute User user, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            return "redirect:/admin";
-        }
-        try {
-            userService.saveUser(user);
-        } catch (Exception e) {
-            return "userNameError";
-        }
-        return "redirect:/admin";
-    }
-
-    @PatchMapping("/{id}")
-    public String update(@ModelAttribute User updatedUser, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            return "redirect:/admin";
-        }
-        try {
-            userService.updateUser(updatedUser);
-        } catch (Exception e) {
-            return "userNameError";
-        }
-        return "redirect:/admin";
-    }
-
-    @GetMapping("/{id}/delete")
-    public String delete(@PathVariable Long id) {
-        userService.removeUserById(id);
-        return "redirect:/admin";
+    @GetMapping("/user")
+    public String showUsers(Model model, Principal principal) {
+        User user = userService.findByUsername(principal.getName());
+        model.addAttribute("user", user);
+        return "user";
     }
 }
 
